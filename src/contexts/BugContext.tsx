@@ -52,7 +52,6 @@ export function BugProvider({ children }: { children: React.ReactNode }) {
         const { data: bugsData, error: bugsError } = await supabase
           .from("bugs")
           .select("*")
-          .eq("user_id", user.id)
           .order("created_at", { ascending: false });
 
         if (bugsError) throw bugsError;

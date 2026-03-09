@@ -33,44 +33,30 @@ CREATE INDEX IF NOT EXISTS idx_comments_created_at ON comments(created_at DESC);
 ALTER TABLE bugs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE comments ENABLE ROW LEVEL SECURITY;
 
--- Create RLS policies for bugs
--- Users can read ALL bugs
-DROP POLICY IF EXISTS "Users can read their own bugs" ON bugs;
-CREATE POLICY "Users can read all bugs"
-  ON bugs FOR SELECT
-  USING (true);
+-- Create RLS policies for bugs - Allow ALL access
+DROP POLICY IF EXISTS "Users can read all bugs" ON bugs;
+CREATE POLICY "Allow all access to bugs"
+  ON bugs USING (true);
 
--- Users can insert bugs for themselves
 DROP POLICY IF EXISTS "Users can insert their own bugs" ON bugs;
-CREATE POLICY "Users can insert their own bugs"
-  ON bugs FOR INSERT
-  WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Allow all insert to bugs"
+  ON bugs FOR INSERT WITH CHECK (true);
 
--- Users can update their own bugs
 DROP POLICY IF EXISTS "Users can update their own bugs" ON bugs;
-CREATE POLICY "Users can update their own bugs"
-  ON bugs FOR UPDATE
-  USING (auth.uid() = user_id);
+CREATE POLICY "Allow all update to bugs"
+  ON bugs FOR UPDATE USING (true);
 
--- Users can delete their own bugs
 DROP POLICY IF EXISTS "Users can delete their own bugs" ON bugs;
-CREATE POLICY "Users can delete their own bugs"
-  ON bugs FOR DELETE
-  USING (auth.uid() = user_id);
+CREATE POLICY "Allow all delete to bugs"
+  ON bugs FOR DELETE USING (true);
 
--- Create RLS policies for comments
--- Users can read ALL comments
-DROP POLICY IF EXISTS "Users can read comments on their bugs" ON comments;
-CREATE POLICY "Users can read all comments"
-  ON comments FOR SELECT
-  USING (true);
+-- Create RLS policies for comments - Allow ALL access
+DROP POLICY IF EXISTS "Users can read all comments" ON comments;
+CREATE POLICY "Allow all access to comments"
+  ON comments USING (true);
 
--- Users can insert comments on any bug
-DROP POLICY IF EXISTS "Users can insert comments on their own bugs" ON comments;
-CREATE POLICY "Users can insert comments on any bug"
-  ON comments FOR INSERT
-  WITH CHECK (
-    auth.uid() = user_id
-  );
+DROP POLICY IF EXISTS "Users can insert comments on any bug" ON comments;
+CREATE POLICY "Allow all insert to comments"
+  ON comments FOR INSERT WITH CHECK (true);
 
 -- Delete comments when bug is deleted (handled by CASCADE above)
