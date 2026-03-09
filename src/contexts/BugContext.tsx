@@ -97,6 +97,36 @@ export function BugProvider({ children }: { children: React.ReactNode }) {
     };
 
     fetchBugs();
+
+    // Subscribe to real-time changes
+    const bugSubscription = supabase
+      .channel("bugs")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "bugs" },
+        () => {
+          // Refetch bugs when any change happens
+          fetchBugs();
+        },
+      )
+      .subscribe();
+
+    const commentSubscription = supabase
+      .channel("comments")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "comments" },
+        () => {
+          // Refetch bugs (which includes comments) when any change happens
+          fetchBugs();
+        },
+      )
+      .subscribe();
+
+    return () => {
+      bugSubscription.unsubscribe();
+      commentSubscription.unsubscribe();
+    };
   }, [user]);
 
   const addBug = useCallback(
