@@ -34,11 +34,11 @@ ALTER TABLE bugs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE comments ENABLE ROW LEVEL SECURITY;
 
 -- Create RLS policies for bugs
--- Users can read their own bugs
+-- Users can read ALL bugs
 DROP POLICY IF EXISTS "Users can read their own bugs" ON bugs;
-CREATE POLICY "Users can read their own bugs"
+CREATE POLICY "Users can read all bugs"
   ON bugs FOR SELECT
-  USING (auth.uid() = user_id);
+  USING (true);
 
 -- Users can insert bugs for themselves
 DROP POLICY IF EXISTS "Users can insert their own bugs" ON bugs;
@@ -59,25 +59,18 @@ CREATE POLICY "Users can delete their own bugs"
   USING (auth.uid() = user_id);
 
 -- Create RLS policies for comments
--- Users can read comments on bugs they own
+-- Users can read ALL comments
 DROP POLICY IF EXISTS "Users can read comments on their bugs" ON comments;
-CREATE POLICY "Users can read comments on their bugs"
+CREATE POLICY "Users can read all comments"
   ON comments FOR SELECT
-  USING (
-    EXISTS (
-      SELECT 1 FROM bugs WHERE bugs.id = comments.bug_id AND bugs.user_id = auth.uid()
-    )
-  );
+  USING (true);
 
--- Users can insert comments on their own bugs
+-- Users can insert comments on any bug
 DROP POLICY IF EXISTS "Users can insert comments on their own bugs" ON comments;
-CREATE POLICY "Users can insert comments on their own bugs"
+CREATE POLICY "Users can insert comments on any bug"
   ON comments FOR INSERT
   WITH CHECK (
-    auth.uid() = user_id AND
-    EXISTS (
-      SELECT 1 FROM bugs WHERE bugs.id = comments.bug_id AND bugs.user_id = auth.uid()
-    )
+    auth.uid() = user_id
   );
 
 -- Delete comments when bug is deleted (handled by CASCADE above)
